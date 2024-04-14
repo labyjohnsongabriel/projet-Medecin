@@ -1,4 +1,5 @@
 <?php
+
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 header("Access-Control-Allow-Origin: *");
@@ -12,7 +13,7 @@ $conn = $objDb->connect();
 $method = $_SERVER['REQUEST_METHOD'];
 switch($method) {
     case "GET":
-        $sql = "SELECT * FROM users";
+        $sql = "SELECT * FROM medicin";
         $path = explode('/', $_SERVER['REQUEST_URI']);
         if(isset($path[3]) && is_numeric($path[3])) {
             $sql .= " WHERE id = :id";
@@ -29,13 +30,18 @@ switch($method) {
         echo json_encode($users);
         break;
     case "POST":
-        $user = json_decode( file_get_contents('php://input') );
-        $sql = "INSERT INTO users(NomMed, Nbr_jours, Taux_journalier, Prestation) VALUES(:NomMed, :Nbr_jours, :Taux_journalier, :Prestation)";
-                $stmt = $conn->prepare($sql);
-                $stmt->bindParam(':NomMed', $user->NomMed);
-                $stmt->bindParam(':Nbr_jours', $user->Nbr_jours);
-                $stmt->bindParam(':Taux_journalier', $user->Taux_journalier);
-                $stmt->bindParam(':Prestation', $user->Prestation);
+        $path = explode('/', $_SERVER['REQUEST_URI']);
+        if($path[1] == "api" && $path[2] =="users" &&$path[3] =="save"){
+            $user = json_decode( file_get_contents('php://input') );
+            $user->Nbr_jours = (int) $user->Nbr_jours;
+            $user->Taux_journalier = (int) $user->Taux_journalier;
+            $Prestation = $user->Nbr_jours * $user->Taux_journalier;
+        $sql = "INSERT INTO medicin(NomMed, Nbr_jours, Taux_journalier, Prestation) VALUES(:NomMed, :Nbr_jours, :Taux_journalier, :Prestation)";
+        $stmt = $conn->prepare($sql);
+        $stmt->bindParam(':NomMed', $user->NomMed);
+        $stmt->bindParam(':Nbr_jours', $user->Nbr_jours);
+        $stmt->bindParam(':Taux_journalier', $user->Taux_journalier);
+        $stmt->bindParam(':Prestation', $Prestation);
 
 
         if($stmt->execute()) {
@@ -43,12 +49,13 @@ switch($method) {
         } else {
             $response = ['status' => 0, 'message' => 'Failed to create record.'];
         }
-        echo json_encode($response);
+            echo json_encode($response);
+        }
         break;
 
     case "PUT":
         $user = json_decode( file_get_contents('php://input') );
-        $sql = "UPDATE users SET NomMed = :NomMed, Nbr_jours = :Nbr_jours, Taux_journalier = :Taux_journalier, Prestation = :Prestation WHERE id = :id";
+        $sql = "UPDATE medicin SET NomMed = :NomMed, Nbr_jours = :Nbr_jours, Taux_journalier = :Taux_journalier, Prestation = :Prestation WHERE id = :id";
         $stmt = $conn->prepare($sql);
         $stmt->bindParam(':id', $user->id);
         $stmt->bindParam(':NomMed', $user->NomMed);
@@ -66,7 +73,7 @@ switch($method) {
         break;
 
     case "DELETE":
-        $sql = "DELETE FROM users WHERE id = :id";
+        $sql = "DELETE FROM medicin WHERE id = :id";
         $path = explode('/', $_SERVER['REQUEST_URI']);
 
         $stmt = $conn->prepare($sql);

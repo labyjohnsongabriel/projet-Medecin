@@ -89,8 +89,8 @@ function ListUser() {
                             <td>{user.id}</td>
                             <td>{user.NomMed}</td>
                             <td>{user.Nbr_jours}</td>
-                            <td>{user.Taux_jounalier}</td>
-                            <td>{calculerPrestation(user.Nbr_jours, user.Taux_jounalier)}</td>
+                            <td>{user.Taux_journalier}</td>
+                            <td>{calculerPrestation(user.Nbr_jours, user.Taux_journalier)}</td>
                             <td>
                                 <Link to={`user/${user.id}/edit`} style={{marginRight: "10px"}} className="btn btn-success">Edit</Link>
                                 <button onClick={() => deleteUser(user.id)} className="btn btn-danger">Delete</button>

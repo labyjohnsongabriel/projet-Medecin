@@ -26,7 +26,7 @@ export default function ListUser() {
     return (
         <div className="ko"> 
             <h1>Create Medecin</h1>
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} >
                 <table cellSpacing="10">
                     <tbody>
                         <tr>
@@ -34,7 +34,7 @@ export default function ListUser() {
                                 <label>Nom: </label>
                             </th>
                             <td>
-                                <input type="text" name="name" onChange={handleChange} className="form-control"/>
+                                <input type="text" name="NomMed" onChange={handleChange} className="form-control"/>
                             </td>
                         </tr>  <br />
                         <tr>
@@ -42,7 +42,7 @@ export default function ListUser() {
                                 <label>Nombre de jours: </label>
                             </th>
                             <td> 
-                                <input type="number" name="email" onChange={handleChange} className="form-control" />
+                                <input type="number" name="Nbr_jours" onChange={handleChange} className="form-control" />
                             </td>
                         </tr>  <br />
                         <tr>
@@ -50,7 +50,7 @@ export default function ListUser() {
                                 <label>Taux journalier: </label>
                             </th>
                             <td>
-                                <input type="number" name="mobile" onChange={handleChange} className="form-control"/>
+                                <input type="number" name="Taux_journalier" onChange={handleChange} className="form-control"/>
                             </td>
                         </tr>  <br />
 
