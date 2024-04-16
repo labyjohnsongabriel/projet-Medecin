@@ -1,47 +1,65 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Chart } from 'chart.js/auto';
 
 function ListUser() {
     const [users, setUsers] = useState([]);
+    const apiBaseUrl = 'http://localhost:8888/api';
+    const navigate = useNavigate(); // Ajout de la navigation
 
     useEffect(() => {
         getUsers();
     }, []);
 
-    function getUsers() {
-        axios.get('http://localhost:8888/api/user/')
-            .then(function(response) {
-                console.log(response.data);
-                setUsers(response.data);
-                drawHistogram(response.data);
-            })
-            .catch(function(error) {
-                console.error('Erreur lors de la récupération des utilisateurs :', error);
-            });
-    }
+    // Fonction pour obtenir la liste des utilisateurs
+    const getUsers = async () => {
+        try {
+            const response = await axios.get(`${apiBaseUrl}/user`);
+            console.log(response.data);
+            setUsers(response.data);
+            drawHistogram(response.data);
+        } catch (error) {
+            console.error('Erreur lors de la récupération des médecins :', error);
+        }
+    };
 
-    const deleteUser = (id) => {
-        axios.delete(`http://localhost:8888/api/user/${id}/delete`)
-            .then(function(response) {
+    // Fonction pour supprimer un utilisateur
+    const deleteUser = async (NomMed) => {
+        if (window.confirm('Êtes-vous sûr de vouloir supprimer ce médecin ?')) {
+            try {
+                
+                const response = await axios.delete(`${apiBaseUrl}/users/delete/${NomMed}`);
                 console.log(response.data);
-                getUsers();
-            })
-            .catch(function(error) {
-                console.error('Erreur lors de la suppression de l\'utilisateur :', error);
-            });
-    }
+
+                
+                if (response.data && response.data.status === 1) {
+                    getUsers(); 
+                } else {
+                    console.error('Échec de la suppression de l\'enregistrement.');
+                }
+            } catch (error) {
+                console.error('Erreur lors de la requête DELETE:', error);
+            }
+        }
+    };
 
     const calculerPrestation = (nombreJours, tauxJournalier) => {
         return nombreJours * tauxJournalier;
-    }
+    };
 
     const drawHistogram = (usersData) => {
-        const prestations = usersData.map(user => calculerPrestation(user.Nbr_jours, user.Taux_jounalier));
+        const prestations = usersData.map(user => calculerPrestation(user.Nbr_jours, user.Taux_journalier));
         const ctx = document.getElementById('histogram').getContext('2d');
-        const histogram = new Chart(ctx, {
+        
+        // Vérifiez si un graphique existe déjà et détruisez-le
+        if (window.histogramChart) {
+            window.histogramChart.destroy();
+        }
+
+        // Créer un nouveau graphique à barres
+        window.histogramChart = new Chart(ctx, {
             type: 'bar',
             data: {
                 labels: ['Prestation Minimale', 'Prestation Maximale'],
@@ -67,12 +85,12 @@ function ListUser() {
                 }
             }
         });
-    }
+    };
 
     return (
-        <div>
-            <h1>Liste des Médecins</h1>
-            <table className="table">
+        <div className="container">
+            <h1 className="text-primary">Liste des Médecins</h1>
+            <table className="table table-striped">
                 <thead>
                     <tr>
                         <th>#</th>
@@ -84,21 +102,22 @@ function ListUser() {
                     </tr>
                 </thead>
                 <tbody>
-                    {users.map((user, key) => (
-                        <tr key={key}>
-                            <td>{user.id}</td>
+                    {users.map((user, index) => (
+                        <tr key={user.id}>
+                            <td>{index + 1}</td>
                             <td>{user.NomMed}</td>
                             <td>{user.Nbr_jours}</td>
                             <td>{user.Taux_journalier}</td>
                             <td>{calculerPrestation(user.Nbr_jours, user.Taux_journalier)}</td>
                             <td>
-                                <Link to={`user/${user.id}/edit`} style={{marginRight: "10px"}} className="btn btn-success">Edit</Link>
-                                <button onClick={() => deleteUser(user.id)} className="btn btn-danger">Delete</button>
+                                <Link to={`/user/${user.NomMed}/edit`} style={{ marginRight: "10px" }} className="btn btn-success">Éditer</Link>
+                                <button className="btn btn-danger" onClick={() => deleteUser(user.NomMed)}>Supprimer</button>
                             </td>
                         </tr>
                     ))}
                 </tbody>
             </table>
+            <h2>Histogramme des Prestations</h2>
             <canvas id="histogram"></canvas>
         </div>
     );
