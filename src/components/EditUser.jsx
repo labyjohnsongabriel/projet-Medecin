@@ -5,7 +5,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 export default function EditMedecin() {
     const navigate = useNavigate();
-    const { id } = useParams();
+    const { NomMed} = useParams();
     const [inputs, setInputs] = useState({
         NomMed: '',
         Nbr_jours: '',
@@ -21,7 +21,7 @@ export default function EditMedecin() {
     
     const getUser = async () => {
         try {
-            const response = await axios.get(`http://localhost:8888/api/user/${id}`);
+            const response = await axios.get(`http://localhost:8888/api/user/${NomMed}`);
             console.log(response.data);
             setInputs(response.data);
         } catch (error) {
@@ -41,10 +41,10 @@ export default function EditMedecin() {
         event.preventDefault();
 
         try {
-            const response = await axios.put(`http://localhost:8888/api/user/${id}`, inputs);
+            const response = await axios.put(`http://localhost:8888/api/user/${NomMed}`, inputs);
             console.log(response.data);
 
-            // Vérifiez la réponse pour vous assurer que l'enregistrement a été mis à jour avec succès
+        
             if (response.data && response.data.status === 1) {
                 navigate('/');
             } else {

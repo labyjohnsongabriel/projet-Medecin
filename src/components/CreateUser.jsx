@@ -22,6 +22,7 @@ export default function CreateMedecin() {
     const handleSubmit = async (event) => {
         event.preventDefault();
     
+        // Vérifiez que les entrées contiennent des valeurs pour tous les champs requis
         if (!inputs.NomMed || !inputs.Nbr_jours || !inputs.Taux_journalier) {
             setError("Tous les champs sont requis.");
             return;

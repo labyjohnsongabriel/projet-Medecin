@@ -18,7 +18,7 @@ $path = explode('/', trim($_SERVER['REQUEST_URI'], '/'));
 switch($method) {
     case "GET":
         if (isset($path[2]) && is_numeric($path[2])) {
-            // Requête GET pour un utilisateur spécifique par ID
+         
             $sql = "SELECT * FROM medicin WHERE id = :id";
             $stmt = $conn->prepare($sql);
             $stmt->bindParam(':id', $path[2], PDO::PARAM_INT);
@@ -26,7 +26,7 @@ switch($method) {
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
             echo json_encode($user);
         } else {
-            // Requête GET pour tous les utilisateurs
+           
             $sql = "SELECT * FROM medicin";
             $stmt = $conn->prepare($sql);
             $stmt->execute();
@@ -35,6 +35,7 @@ switch($method) {
         }
         break;
         case "POST":
+            var_dump($path[1] === "users" && $path[2] === "save");
             if ($path[1] === "users" && $path[2] === "save") {
                 $user = json_decode(file_get_contents('php://input'), true);
                 
@@ -46,7 +47,6 @@ switch($method) {
               
                 $Prestation = $user['Nbr_jours'] * $user['Taux_journalier'];
         
-                // Vérification de la duplication de NomMed
                 $sql_check = "SELECT COUNT(*) FROM medicin WHERE NomMed = :NomMed";
                 $stmt_check = $conn->prepare($sql_check);
                 $stmt_check->bindValue(':NomMed', $user['NomMed'], PDO::PARAM_STR);
@@ -84,69 +84,78 @@ switch($method) {
             }
             break;
         
-    
-    case "PUT":
-        if ($path[1] === "users" && $path[2] === "save" && isset($path[3])) {
-            $id = $path[3];
-            $user = json_decode(file_get_contents('php://input'), true);
-            
-            $Prestation = $user['Nbr_jours'] * $user['Taux_journalier'];
-            
-           
-            $sql = "UPDATE medicin SET NomMed = :NomMed, Nbr_jours = :Nbr_jours, Taux_journalier = :Taux_journalier, Prestation = :Prestation WHERE id = :id";
-            $stmt = $conn->prepare($sql);
-            $stmt->bindParam(':NomMed', $user['NomMed'], PDO::PARAM_STR);
-            $stmt->bindParam(':Nbr_jours', (int)$user['Nbr_jours'], PDO::PARAM_INT);
-            $stmt->bindParam(':Taux_journalier', (int)$user['Taux_journalier'], PDO::PARAM_INT);
-            $stmt->bindParam(':Prestation', (float)$Prestation, PDO::PARAM_STR);
-            $stmt->bindParam(':id', $id, PDO::PARAM_INT);
-            
-            try {
-                if ($stmt->execute()) {
-                    echo json_encode(['status' => 1, 'message' => 'Record updated successfully.']);
+            case "PUT":
+                
+                if ($path[1] === "user" && isset($path[2]) && is_string($path[2])) {
+                  
+                    $NomMed = $path[2];
+                    
+                    // Décoder le JSON de la requête
+                    $user = json_decode(file_get_contents('php://input'), true);
+                    
+                  
+                    $Prestation = $user['Nbr_jours'] * $user['Taux_journalier'];
+                    
+                    
+                    $sql = "UPDATE medicin SET NomMed = :NomMed, Nbr_jours = :Nbr_jours, Taux_journalier = :Taux_journalier, Prestation = :Prestation WHERE id = :id";
+                    $stmt = $conn->prepare($sql);
+                    $stmt->bindParam(':NomMed', $user['NomMed'], PDO::PARAM_STR);
+                    $stmt->bindParam(':Nbr_jours', (int)$user['Nbr_jours'], PDO::PARAM_INT);
+                    $stmt->bindParam(':Taux_journalier', (int)$user['Taux_journalier'], PDO::PARAM_INT);
+                    $stmt->bindParam(':Prestation', (float)$Prestation, PDO::PARAM_STR);
+                    $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+                    
+                    // Exécuter la requête
+                    try {
+                        if ($stmt->execute()) {
+                            echo json_encode(['status' => 1, 'message' => 'Record updated successfully.']);
+                        } else {
+                            echo json_encode(['status' => 0, 'message' => 'Failed to update record.']);
+                        }
+                    } catch (PDOException $e) {
+                        echo json_encode(['status' => 0, 'message' => 'Error updating record: ' . $e->getMessage()]);
+                    }
                 } else {
-                    echo json_encode(['status' => 0, 'message' => 'Failed to update record.']);
+                    echo json_encode(['status' => 0, 'message' => 'Invalid endpoint for PUT request.']);
                 }
-            } catch (PDOException $e) {
-                echo json_encode(['status' => 0, 'message' => 'Error updating record: ' . $e->getMessage()]);
-            }
-        } else {
-            echo json_encode(['status' => 0, 'message' => 'Invalid endpoint for PUT request.']);
-        }
-        break;
-
+                break;
+            
         case "DELETE":
-
-            if ($path[1] === "users" && $path[2] === "delete" && isset($path[3]) && is_numeric($path[3])){        
+            if ($path[1] === "users" && $path[2] === "delete" && isset($path[3]) && is_string($path[3])) {
+               
+                $NomMed = $path[3];
+                
                 
                 $checkSql = "SELECT COUNT(*) FROM medicin WHERE NomMed = :NomMed";
                 $checkStmt = $conn->prepare($checkSql);
-                $checkStmt->bindParam(':id', $id, PDO::PARAM_INT);
+                $checkStmt->bindParam(':NomMed', $NomMed, PDO::PARAM_STR);
                 $checkStmt->execute();
                 $count = $checkStmt->fetchColumn();
         
+                
                 if ($count > 0) {
-                    
                     $sql = "DELETE FROM medicin WHERE NomMed = :NomMed";
                     $stmt = $conn->prepare($sql);
-                    $stmt->bindParam(':iNomMedd', $id, PDO::PARAM_INT);
+                    $stmt->bindParam(':NomMed', $NomMed, PDO::PARAM_STR);
         
                     try {
+                      
                         if ($stmt->execute()) {
                             echo json_encode(['status' => 1, 'message' => 'Record deleted successfully.']);
                         } else {
                             echo json_encode(['status' => 0, 'message' => 'Failed to delete record.']);
                         }
                     } catch (PDOException $e) {
+                     
                         echo json_encode(['status' => 0, 'message' => 'Error deleting record: ' . $e->getMessage()]);
                     }
                 } else {
-                  
+                   
                     echo json_encode(['status' => 0, 'message' => 'Record not found.']);
                 }
-            } else {
-                echo json_encode(['status' => 0, 'message' => 'Invalid endpoint for DELETE request.']);
-            }
+            } 
+
             break;
+        
         
 }

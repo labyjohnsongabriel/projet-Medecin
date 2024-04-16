@@ -103,7 +103,7 @@ function ListUser() {
                 </thead>
                 <tbody>
                     {users.map((user, index) => (
-                        <tr key={user.id}>
+                        <tr key={user.NomMed}>
                             <td>{index + 1}</td>
                             <td>{user.NomMed}</td>
                             <td>{user.Nbr_jours}</td>
