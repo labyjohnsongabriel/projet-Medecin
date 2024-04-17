@@ -22,34 +22,34 @@ export default function CreateMedecin() {
     const handleSubmit = async (event) => {
         event.preventDefault();
     
-        // Vérifiez que les entrées contiennent des valeurs pour tous les champs requis
         if (!inputs.NomMed || !inputs.Nbr_jours || !inputs.Taux_journalier) {
             setError("Tous les champs sont requis.");
             return;
         }
     
-  
+       
         if (inputs.Nbr_jours <= 0 || inputs.Taux_journalier <= 0) {
             setError("Les valeurs de 'Nbr_jours' et 'Taux_journalier' doivent être des nombres positifs.");
             return;
         }
     
         try {
-            
             const response = await axios.post('http://localhost:8888/api/users/save', inputs);
     
-            
+           
             if (response.data && response.data.status === 1) {
+               
                 navigate('/');
             } else {
+
                 setError('Échec de la création de l\'enregistrement.');
             }
         } catch (error) {
-         
             console.error('Erreur lors de la requête POST:', error);
             setError('Erreur lors de l\'envoi de la requête. Veuillez réessayer.');
         }
     };
+    
     
 
     return (
@@ -93,7 +93,7 @@ export default function CreateMedecin() {
                         required
                     />
                 </div>
-                <button type="submit" className="btn btn-primary">Enregistrer</button>
+                <button type="submit" className="btn btn-primary">Ajouter</button>
             </form>
         </div>
     );
