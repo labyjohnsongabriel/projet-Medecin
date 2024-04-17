@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
+import './app.css';
 
 export default function EditMedecin() {
     const navigate = useNavigate();
@@ -15,8 +16,21 @@ export default function EditMedecin() {
 
   
     useEffect(() => {
-        getUser();
-    }, []);
+        
+        axios.get(`http://localhost:8888/api/medecin/${NomMed}`)
+            .then(response => {
+                if (response.data) {
+                    setInputs(response.data);
+                } else {
+                    setError('Médecin non trouvé.');
+                }
+            })
+            .catch(err => {
+                console.error('Erreur lors de la récupération des données:', err);
+                setError('Erreur lors de la récupération des données.');
+            });
+    }, [NomMed]);
+
 
     
     const getUser = async () => {
@@ -30,7 +44,7 @@ export default function EditMedecin() {
         }
     };
 
-    // Fonction pour gérer les changements de champ dans le formulaire
+   
     const handleChange = (event) => {
         const { name, value } = event.target;
         setInputs(prevState => ({ ...prevState, [name]: value }));
@@ -57,7 +71,7 @@ export default function EditMedecin() {
     };
 
     return (
-        <div className="container">
+        <div className="container-flux">
             <h1 className="mb-4">Modifier Médecin</h1>
             {error && <div className="alert alert-danger">{error}</div>}
             <form onSubmit={handleSubmit}>

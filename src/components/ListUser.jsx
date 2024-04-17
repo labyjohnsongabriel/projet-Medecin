@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Chart } from 'chart.js/auto';
 
+
 function ListUser() {
     const [users, setUsers] = useState([]);
     const apiBaseUrl = 'http://localhost:8888/api';
@@ -13,7 +14,6 @@ function ListUser() {
         getUsers();
     }, []);
 
-    // Fonction pour obtenir la liste des utilisateurs
     const getUsers = async () => {
         try {
             const response = await axios.get(`${apiBaseUrl}/user`);
@@ -25,7 +25,7 @@ function ListUser() {
         }
     };
 
-    // Fonction pour supprimer un utilisateur
+
     const deleteUser = async (NomMed) => {
         if (window.confirm('Êtes-vous sûr de vouloir supprimer ce médecin ?')) {
             try {
@@ -90,10 +90,10 @@ function ListUser() {
     return (
         <div className="container">
             <h1 className="text-primary">Liste des Médecins</h1>
-            <table className="table table-striped">
+            <table className="table table-group-divider">
                 <thead>
                     <tr>
-                        <th>#</th>
+                        <th>Id</th>
                         <th>Nom</th>
                         <th>Nombre de jours</th>
                         <th>Taux journalier</th>
@@ -117,6 +117,7 @@ function ListUser() {
                     ))}
                 </tbody>
             </table>
+            
             <h2>Histogramme des Prestations</h2>
             <canvas id="histogram"></canvas>
         </div>

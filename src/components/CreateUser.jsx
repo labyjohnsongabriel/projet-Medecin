@@ -2,6 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
+import './app.css';
 
 export default function CreateMedecin() {
     const navigate = useNavigate();
@@ -26,23 +27,30 @@ export default function CreateMedecin() {
             setError("Tous les champs sont requis.");
             return;
         }
-    
-       
-        if (inputs.Nbr_jours <= 0 || inputs.Taux_journalier <= 0) {
+        
+        // Vérification des valeurs positives
+        const nbrJours = parseInt(inputs.Nbr_jours, 10);
+        const tauxJournalier = parseFloat(inputs.Taux_journalier);
+        
+        if (nbrJours <= 0 || tauxJournalier <= 0) {
             setError("Les valeurs de 'Nbr_jours' et 'Taux_journalier' doivent être des nombres positifs.");
             return;
         }
-    
+
+        // Préparation de la requête POST
         try {
-            const response = await axios.post('http://localhost:8888/api/users/save', inputs);
-    
+            const response = await axios.post('http://localhost:8888/api/users/save', {
+                NomMed: inputs.NomMed,
+                Nbr_jours: nbrJours,
+                Taux_journalier: tauxJournalier,
+            });
+
            
             if (response.data && response.data.status === 1) {
-               
-                navigate('/');
-            } else {
-
                 setError('Échec de la création de l\'enregistrement.');
+                
+            } else {
+                navigate('/'); 
             }
         } catch (error) {
             console.error('Erreur lors de la requête POST:', error);
@@ -50,11 +58,10 @@ export default function CreateMedecin() {
         }
     };
     
-    
 
     return (
-        <div className="container">
-            <h1 className="mb-4">Créer Médecin</h1>
+        <div className="container-flux"> 
+            <h1 className="mb-4">Ajouter Médecin</h1>
             {error && <div className="alert alert-danger">{error}</div>}
             <form onSubmit={handleSubmit}>
                 <div className="mb-3">

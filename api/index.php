@@ -19,9 +19,9 @@ switch($method) {
     case "GET":
         if (isset($path[2]) && is_numeric($path[2])) {
          
-            $sql = "SELECT * FROM medicin WHERE id = :id";
+            $sql = "SELECT * FROM medicin WHERE NumMed = :NumMed";
             $stmt = $conn->prepare($sql);
-            $stmt->bindParam(':id', $path[2], PDO::PARAM_INT);
+            $stmt->bindParam(':NumMed', $path[2], PDO::PARAM_INT);
             $stmt->execute();
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
             echo json_encode($user);
@@ -96,7 +96,7 @@ switch($method) {
                     if (isset($user['Nbr_jours']) && isset($user['Taux_journalier']) && isset($user['NomMed'])) {
                        
                         $Prestation = $user['Nbr_jours'] * $user['Taux_journalier'];
-            
+                        
                         
                         $sql = "UPDATE medicin SET Nbr_jours = :Nbr_jours, Taux_journalier = :Taux_journalier, Prestation = :Prestation WHERE NomMed = :NomMed";
                         
